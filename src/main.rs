@@ -72,20 +72,18 @@ impl Tree{
         } else {
         let root = self.root.clone();
         let t = self.t;
-        if root.keys.len() == (2*t) - 1{
+        if root.keys.len() == (2*t - 1){
             let mut new_root = Node::new(false);
             new_root.children.insert(0, root);
             // println!("{:?}",new_root);
             self.root = new_root.clone();
-            self.root = self.split(new_root.clone(), 0);
+            self.root = self.split(new_root, 0);
             // println!("after split\n{:?}",self);
-            self = self.insert_non_full(self.root.clone(),k);
-            println!("inserting {}\t{:?}",k,self);
+            self = self.clone().insert_non_full(self.root,k);
             return self;
         }
         else {
-            self = self.insert_non_full(root,k);
-            println!("inserting {}\t{:?}",k,self);
+            self = self.clone().insert_non_full(self.root,k);
             return self;
         }
     }
@@ -93,7 +91,7 @@ impl Tree{
 
     fn insert_non_full(&mut self, x:Node,k:i32) -> Self{
         let t = self.t;
-        let mut i = x.keys.len() - 1;
+        let mut i = x.keys.len()-1;
         if x.leaf {
             self.root.keys.append(&mut vec![0]);
             while i>=usize::MIN && k < self.root.keys[i]{
@@ -130,15 +128,15 @@ impl Tree{
 
 fn main() {
     let tree = Tree::init(2);
-    let tree = tree.insert(24);
-    let tree = tree.insert(10);
-    let tree = tree.insert(8);
-    let tree = tree.insert(40);
+    let tree = tree.insert(5);
+    let tree = tree.insert(9);
+    let tree = tree.insert(3);
+    let tree = tree.insert(7);
     // let tree = tree.insert(60);
     // let tree = tree.insert(25);
     
     tree.print_tree(&tree.root, 0);
-    match tree.search(40, &tree.root){
+    match tree.search(1, &tree.root){
         Some(_) => println!("key is found"),
         None => println!("key is not found")
     }
