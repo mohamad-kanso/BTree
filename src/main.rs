@@ -7,7 +7,7 @@ struct Node{
 
 impl Node{
     fn new(leaf:bool) -> Self{
-        return Node{keys: vec![],children:vec![],leaf:leaf}
+        return Node{keys: vec![],children:vec![],leaf}
     }
 }
 
