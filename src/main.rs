@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Clone,Debug)]
 struct Node{
     keys: Vec<i32>,
@@ -10,6 +12,19 @@ impl Node{
         return Node{keys: vec![],children:vec![],leaf}
     }
 }
+impl fmt::Display for Node {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[")?;
+        for (i, key) in self.keys.iter().enumerate() {
+            write!(f, "{}", key)?;
+            if i < self.keys.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f, "]")?;
+        Ok(())
+    }
+}   
 
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
@@ -22,17 +37,10 @@ impl Tree{
         return Tree{root: Node::new(true),t:t}
     }
 
-    fn print_tree(&self, root:&Node, level: i32){
-        println!("Level: {level}",);
-        for k in &root.keys{
-            print!("{k} \t");
-        }
-        println!();
-        let level=level + 1;
-        if root.children.len() > 0{
-            for i in &root.children{
-                self.print_tree(&i, level)
-            }
+    fn print_btree(&self,node: &Node, level: usize) {
+        println!("{}{}", "  ".repeat(level), node);
+        for child in &node.children {
+            self.print_btree(child, level + 1);
         }
     }
 
@@ -57,8 +65,12 @@ impl Tree{
         if !x.children[i].leaf{
             let mut j:usize = 0;
             while j < t {
-                z.children[j] = x.children[i].children[j+t].clone();
+                z.children.insert(j, x.children[i].children[j+t].clone());
                 j+=1
+            }
+            while j>0{
+                x.children[i].children.pop();
+                j-=1;
             }
         }
         x.children.insert(i+1,z);
@@ -109,7 +121,7 @@ impl Tree{
             while i >=usize::MIN && k < x.keys[i]{
                 if i == 0 {
                     if x.children[i].keys.len() == (2*t-1){
-                        self.split(x.clone(), i);
+                        x = self.split(x, i);
                         if k > x.keys[i]{
                             i+=1
                         }
@@ -122,7 +134,7 @@ impl Tree{
             i += 1;
             // if full
             if x.children[i].keys.len() == (2*t-1){
-                self.split(x.clone(), i);
+                x = self.split(x, i);
                 if k > x.keys[i]{
                     i+=1
                 }
@@ -136,19 +148,21 @@ impl Tree{
 
 fn main() {
     let tree = Tree::init(2);
-    let tree = tree.insert(9);
+
     let tree = tree.insert(5);
+    let tree = tree.insert(9);
     let tree = tree.insert(3);
     let tree = tree.insert(7);
-    let tree = tree.insert(4);
+    let tree = tree.insert(1);
+    let tree = tree.insert(2);
+    let tree = tree.insert(8);
     let tree = tree.insert(6);
-    // let tree = tree.insert(2);
-    // let tree = tree.insert(25);
-    // let tree = tree.insert(1);
-    // let tree = tree.insert(8);
+    let tree = tree.insert(0);
+    let tree = tree.insert(4);
     
-    tree.print_tree(&tree.root, 0);
-    match tree.search(9, &tree.root){
+    tree.print_btree(&tree.root, 0);
+
+    match tree.search(6, &tree.root){
         Some(_) => println!("key is found"),
         None => println!("key is not found")
     }
