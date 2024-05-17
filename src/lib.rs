@@ -34,7 +34,7 @@ pub struct Tree{
 }
 impl Tree{
    pub fn init(t:usize) -> Self{
-      return Tree{root: Node::new(true),t:t}
+      return Tree{root: Node::new(true),t}
    }
 
    pub fn print_btree(&self,node: &Node, level: usize) {
@@ -82,11 +82,10 @@ impl Tree{
       if self.root.keys.is_empty(){
          self.root.keys.push(k); self
       } else {
-      let root = self.root.clone();
       let t = self.t;
-      if root.keys.len() == (2*t - 1){
+      if self.root.keys.len() == (2*t - 1){
          let mut new_root = Node::new(false);
-         new_root.child.insert(0, root);
+         new_root.child.insert(0, self.root);
          self.root = new_root.clone();
          self.root = self.split(new_root, 0);
          // println!("after split\n{:?}",self);
@@ -119,25 +118,22 @@ impl Tree{
       }
       else {
          while i >=usize::MIN && k < x.keys[i]{
-               if i == 0 {
-                  if x.child[i].keys.len() == (2*t-1){
-                     x = self.split(x, i);
-                     if k > x.keys[i]{
-                           i+=1
-                     }
+            if i == 0 {
+               if x.child[i].keys.len() == (2*t-1){
+                  x = self.split(x, i);
+                  if k > x.keys[i]{
+                     i+=1
                   }
-                  x.child[i] = self.insert_non_full(x.child[i].clone(), k);
-                  return x;        
                }
-               i -= 1;
+               x.child[i] = self.insert_non_full(x.child[i].clone(), k);
+               return x;        
+            }
+            i -= 1;
          }
          i += 1;
-         // if full
          if x.child[i].keys.len() == (2*t-1){
-               x = self.split(x, i);
-               if k > x.keys[i]{
-                  i+=1
-               }
+            x = self.split(x, i);
+            if k > x.keys[i]{i+=1}
          }
          x.child[i] = self.insert_non_full(x.child[i].clone(), k);
          x
@@ -248,7 +244,6 @@ impl Tree{
       }
    }
 
-   #[allow(unused_assignments)]
    fn delete_merge <'a>(&'a mut self, x:&mut Node, i:usize, j:usize){
       if j > i{
          x.child[i].keys.push(x.keys[i]);
@@ -267,10 +262,8 @@ impl Tree{
          x.keys.remove(i);
          x.child.remove(j);
          *x = x.child[i].to_owned();
-         // println!("new {:?}",new);
       }
-      else { 
-         println!("HELLO");
+      else {
          x.child[j].keys.push(x.keys[j]);
          for k in 0..x.child[i].keys.len(){
             let a = x.child[i].keys[k];
@@ -293,4 +286,4 @@ impl Tree{
       }
    }
 
-   }
+}
